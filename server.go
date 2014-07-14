@@ -53,6 +53,7 @@ func ChunkerServer(w http.ResponseWriter, req *http.Request) {
 	url := scheme + "://" + host + uri
 	resp, _ := http_client.Do(getRequest(url + "&header=1"))
 	w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
+	w.Header().Set("X-Accel-Buffering", "no")
 	io.Copy(w, resp.Body)
 	resp.Body.Close()
 	if resp.StatusCode != 200 {

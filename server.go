@@ -52,13 +52,13 @@ func ChunkerServer(w http.ResponseWriter, req *http.Request) {
 	uri := req.RequestURI
 	url := scheme + "://" + host + uri
 	resp, _ := http_client.Do(getRequest(url + "&header=1"))
-    w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
+	w.Header().Set("Content-Type", resp.Header.Get("Content-Type"))
 	io.Copy(w, resp.Body)
-	resp.Body.Close()	
+	resp.Body.Close()
 	if resp.StatusCode != 200 {
 		return
 	}
-    lastid := "0"
+	lastid := "0"
 	var content []byte
 	for {
 		resp, _ = http_client.Do(getRequest(url + "&lastid=" + lastid))
@@ -82,8 +82,8 @@ func ChunkerServer(w http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-    port := flag.String("port", "8080", "port to run the server on")
-    flag.Parse()
-    log.Println("Going to run chunker server on port: " + *port)
-	log.Fatal(http.ListenAndServe(":" + *port, makeGzipHandler(ChunkerServer)))
+	port := flag.String("port", "8080", "port to run the server on")
+	flag.Parse()
+	log.Println("Going to run chunker server on port: " + *port)
+	log.Fatal(http.ListenAndServe(":"+*port, makeGzipHandler(ChunkerServer)))
 }

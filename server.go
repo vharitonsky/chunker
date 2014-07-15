@@ -1,14 +1,16 @@
 package main
 
-import "io"
-import "log"
-import "flag"
-import "strings"
-import "net/http"
-import "io/ioutil"
-import "compress/gzip"
+import (
+	"compress/gzip"
+	"flag"
+	"io"
+	"log"
+	"net/http"
+	"strings"
+)
 
 var (
+	port        = flag.String("port", "8080", "port to run the server on")
 	http_client = &http.Client{}
 )
 
@@ -60,18 +62,16 @@ func ChunkerServer(w http.ResponseWriter, req *http.Request) {
 		return
 	}
 	lastid := "0"
-	var content []byte
 	for {
 		resp, _ = http_client.Do(getRequest(url + "&lastid=" + lastid))
 		if resp.StatusCode != 200 {
 			return
 		}
-		content, _ = ioutil.ReadAll(resp.Body)
+		n, _ := io.Copy(w, resp.Body)
 		resp.Body.Close()
-		if string(content) == "" {
+		if n == 0 {
 			break
 		}
-		io.WriteString(w, string(content))
 		lastid = resp.Header.Get("LASTID")
 	}
 	resp, _ = http_client.Do(getRequest(url + "&footer=1"))
@@ -83,7 +83,6 @@ func ChunkerServer(w http.ResponseWriter, req *http.Request) {
 }
 
 func main() {
-	port := flag.String("port", "8080", "port to run the server on")
 	flag.Parse()
 	log.Println("Going to run chunker server on port: " + *port)
 	log.Fatal(http.ListenAndServe(":"+*port, makeGzipHandler(ChunkerServer)))

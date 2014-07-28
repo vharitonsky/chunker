@@ -73,9 +73,9 @@ func ChunkerServer(w http.ResponseWriter, req *http.Request) {
 			break
 		}
 		lastid = resp.Header.Get("LASTID")
-        if lastid == ""{
-            break
-        }
+		if lastid == "" {
+			break
+		}
 	}
 	resp, _ = http_client.Do(getRequest(url + "&footer=1"))
 	if resp.StatusCode != 200 {
